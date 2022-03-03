@@ -4,6 +4,7 @@
 import string
 import random
 from flask import Blueprint, request, jsonify, current_app
+from exts import cache
 
 bluePrint = Blueprint("fronts", __name__, url_prefix="/")
 
@@ -34,5 +35,7 @@ def email_capture():
     subject = "Bruce"
     body = "您的注册验证码:%s" % code
     current_app.celery.send_task("send_mail", (email, subject, body))
+    cache.set(email, code)
+    print(cache.get(email))
     return jsonify({"code": 200, "message": "success"})
 

@@ -10,13 +10,14 @@ from blog_celery import make_celery
 # 导入配置
 import config
 # 导入数据库
-from exts import db, mail
+from exts import db, mail, cache
 
 app = Flask(__name__)
 app.config.from_object(config)
 
 db.init_app(app)
 mail.init_app(app)
+cache.init_app(app)
 
 # 构建celery
 celery = make_celery(app)
