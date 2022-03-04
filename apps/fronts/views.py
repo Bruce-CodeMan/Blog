@@ -3,28 +3,28 @@
 
 import string
 import random
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request, current_app, render_template
 from exts import cache
 from utils import restful
 
-bluePrint = Blueprint("fronts", __name__, url_prefix="/")
+front = Blueprint("fronts", __name__, url_prefix="/")
 
 
 # 首页
-@bluePrint.route("/")
+@front.route("/")
 def index():
     return "hello"
 
 
 # 登录
-@bluePrint.route("/login", methods=["GET"])
+@front.route("/login", methods=["GET"])
 def login():
     if request.method == 'GET':
         return "hello front"
 
 
 # 发送邮件
-@bluePrint.get("/email/capture")
+@front.get("/email/capture")
 def email_capture():
     email = request.args.get('email')
     if not email:
@@ -39,3 +39,8 @@ def email_capture():
     cache.set(email, code)
     return restful.ok(message="success")
 
+
+# 注册
+@front.get("/register")
+def register():
+    return render_template("front/register.html")

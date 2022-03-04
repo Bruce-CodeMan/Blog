@@ -1,5 +1,6 @@
 # @Time: 2022/3/3 10:45 上午
 # @Author: Bruce
+import os
 
 # 配置数据库
 DB_USERNAME = 'root'
@@ -39,3 +40,10 @@ CACHE_DEFAULT_TIMEOUT = 300
 CACHE_REDIS_HOST = '127.0.0.1'
 CACHE_REDIS_PORT = 6379
 
+# 设置secret key
+SECRET_KEY = "bruce"
+
+
+# 设置项目的跟路径
+# dirname就可以获取当前所在文件的文件夹，就是Blog
+BASE_DIR = os.path.dirname(__file__)
