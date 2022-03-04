@@ -3,8 +3,9 @@
 
 import string
 import random
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, current_app
 from exts import cache
+from utils import restful
 
 bluePrint = Blueprint("fronts", __name__, url_prefix="/")
 
@@ -27,7 +28,7 @@ def login():
 def email_capture():
     email = request.args.get('email')
     if not email:
-        return jsonify({"code": 400, "message": "请先传入邮箱"})
+        return restful.params_error(message="请先传入邮箱")
 
     # 随机生成六位验证码
     source = list(string.digits)
@@ -36,6 +37,5 @@ def email_capture():
     body = "您的注册验证码:%s" % code
     current_app.celery.send_task("send_mail", (email, subject, body))
     cache.set(email, code)
-    print(cache.get(email))
-    return jsonify({"code": 200, "message": "success"})
+    return restful.ok(message="success")
 
