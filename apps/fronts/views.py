@@ -1,11 +1,14 @@
 # @Time: 2022/3/3 1:15 下午
 # @Author: Bruce
-
+import time
 import string
 import random
-from flask import Blueprint, request, current_app, render_template
+from flask import Blueprint, request, current_app, render_template, make_response
 from exts import cache
 from utils import restful
+from utils.captcha import Captcha
+from hashlib import md5
+from io import BytesIO
 
 front = Blueprint("fronts", __name__, url_prefix="/")
 
@@ -44,3 +47,25 @@ def email_capture():
 @front.get("/register")
 def register():
     return render_template("front/register.html")
+
+
+# 图形验证码
+@front.get("/graph/captcha")
+def graph_captcha():
+    # 返回的image是一个类
+    captcha, image = Captcha.gene_graph_captcha()
+    key = md5((captcha+str(time.time())).encode("utf-8")).hexdigest()
+    cache.set(key, captcha)
+    # 将image保存成二进制文件
+    # with open("captcha.png", "wb") as fp:
+    #    image.save(fp, "png")
+    out = BytesIO()
+    image.save(out, "png")
+    # 在保存的时候，out的文件指针会指向最后一位
+    # 所以在保存完毕的时候，要将指针归位
+    out.seek(0)
+    resp = make_response(out.read())
+    resp.content_type = "image/png"
+    # 3600秒就是1个小时
+    resp.set_cookie("_graph_captcha_key", key, max_age=3600)
+    return resp

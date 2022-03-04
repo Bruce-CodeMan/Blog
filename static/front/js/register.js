@@ -1,7 +1,12 @@
+/**
+ * Created by Bruce on 2022/3/5.
+ */
+
 var RegisterHandler = function(){
 
 }
 
+// 监听邮箱验证码
 RegisterHandler.prototype.listenSendCaptureEvent = function (){
     var callback = function (event) {
         // 原生js对象转成jquery对象
@@ -44,8 +49,22 @@ RegisterHandler.prototype.listenSendCaptureEvent = function (){
     $("#email-captcha-btn").on("click", callback);
 }
 
+// 监听图片验证码
+RegisterHandler.prototype.listenGraphCaptchaEvent = function (){
+    $('#captcha-img').on("click", function (){
+        var $this = $(this);
+        var src = $this.attr("src");
+        // 重新设置src属性
+        // 如果是老的浏览器，相同的请求是不会再次请求后端的
+        // graph/captcha?sign=Math.random()
+        let newSrc = zlparam.setParam(src, "sign", Math.random())
+        $this.attr("src", newSrc)
+    })
+}
+
 RegisterHandler.prototype.run = function (){
-    this.listenSendCaptureEvent()
+    this.listenSendCaptureEvent();
+    this.listenGraphCaptchaEvent();
 }
 
 // 等整个页面加载完成在执行js文件
