@@ -1,12 +1,13 @@
 # @Time: 2022/3/3 10:38 上午
 # @Author: Bruce
-
+import commands
 from flask import Flask
 from flask_migrate import Migrate
 from models import auth
 from apps.front import front
 from apps.media import media
 from blog_celery import make_celery
+
 
 # 导入配置
 import config
@@ -31,6 +32,8 @@ migrate = Migrate(app, db)
 app.register_blueprint(front)
 app.register_blueprint(media)
 
+# 注册命令
+app.cli.command("init_board")(commands.init_boards)
 
 if __name__ == '__main__':
     app.run()

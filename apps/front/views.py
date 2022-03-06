@@ -20,7 +20,7 @@ from utils.captcha import Captcha
 from hashlib import md5
 from io import BytesIO
 from . import forms
-from models import auth
+from models import auth, border
 from .decorator import login_required
 from flask_avatars import Identicon
 
@@ -48,7 +48,8 @@ def front_context_processor():
 # 首页
 @front.route("/")
 def index():
-    return render_template("front/index.html")
+    borders = border.BorderModel.query.order_by(border.BorderModel.priority.desc()).all()
+    return render_template("front/index.html", borders=borders)
 
 
 # 登录
@@ -186,3 +187,12 @@ def edit_profile():
         return restful.ok()
     else:
         return restful.params_error(form.messages[0])
+
+
+# 发布帖子
+@front.route("/poster/public", methods=["GET", "POST"])
+@login_required
+def poster_public():
+    if request.method == "GET":
+        borders = border.BorderModel.query.all()
+        return render_template("front/poster_public.html", borders=borders)
