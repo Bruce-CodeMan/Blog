@@ -4,7 +4,7 @@
 import shortuuid
 from exts import db
 from datetime import datetime
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class UserModel(db.Model):
@@ -30,5 +30,8 @@ class UserModel(db.Model):
         return self._password
 
     @password.setter
-    def password(self, newPassword):
-        self._password = generate_password_hash(newPassword)
+    def password(self, new_password):
+        self._password = generate_password_hash(new_password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)

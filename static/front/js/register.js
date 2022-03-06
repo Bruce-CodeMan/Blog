@@ -20,7 +20,7 @@ RegisterHandler.prototype.listenSendCaptureEvent = function (){
             alert("请输入正确格式的邮箱！")
             return
         }
-        zlajax.get({
+        bruce_ajax.get({
             url: "/email/capture?email=" + email,
             success: function (result) {
                 if (result["code"] == 200) {
@@ -29,7 +29,7 @@ RegisterHandler.prototype.listenSendCaptureEvent = function (){
                     // 添加禁用状态
                     $this.attr("disabled", "disabled");
                     // 开始倒计时
-                    var countDown = 10;
+                    var countDown = 300;
                     var interval = setInterval(function () {
                         if (countDown > 0) {
                             $this.text("重新发送(" + countDown + "s)");
@@ -57,14 +57,47 @@ RegisterHandler.prototype.listenGraphCaptchaEvent = function (){
         // 重新设置src属性
         // 如果是老的浏览器，相同的请求是不会再次请求后端的
         // graph/captcha?sign=Math.random()
-        let newSrc = zlparam.setParam(src, "sign", Math.random())
+        let newSrc = bruce_param.setParam(src, "sign", Math.random())
         $this.attr("src", newSrc)
+    })
+}
+
+// 注册按钮
+RegisterHandler.prototype.listenSubmitEvent = function (){
+    $("#submit-btn").on("click", function (event){
+        event.preventDefault();
+        var email = $("input[name='email']").val();
+        var email_captcha = $("input[name='email_captcha']").val();
+        var username = $("input[name='username']").val();
+        var password = $("input[name='password']").val();
+        var repeat_password = $("input[name='repeat_password']").val();
+        var graph_captcha = $("input[name='graph_captcha']").val();
+
+        bruce_ajax.post({
+            url:"/register",
+            data: {
+                "email": email,
+                "email_captcha": email_captcha,
+                username, // "username":username
+                password,
+                repeat_password,
+                graph_captcha
+            },
+            success:function (result){
+                if(result["code"] == 200){
+                    window.location = "/login"
+                }else{
+                    alert(result["message"])
+                }
+            }
+        })
     })
 }
 
 RegisterHandler.prototype.run = function (){
     this.listenSendCaptureEvent();
     this.listenGraphCaptchaEvent();
+    this.listenSubmitEvent();
 }
 
 // 等整个页面加载完成在执行js文件

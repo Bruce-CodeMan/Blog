@@ -1,10 +1,11 @@
 # @Time: 2022/3/3 10:45 上午
 # @Author: Bruce
 import os
+from datetime import timedelta
 
 # 配置数据库
 DB_USERNAME = 'root'
-DB_PASSWORD = '12345678'
+DB_PASSWORD = '123456'
 DB_HOST = '127.0.0.1'
 DB_PORT = '3306'
 DB_NAME = 'blog'
@@ -35,7 +36,7 @@ CELERY_BROKER_URL = "redis://127.0.0.1:6379/8"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/8"
 
 # Flask-Caching的配置
-CACHE_TYPE = 'RedisCache'
+CACHE_TYPE = 'redis'
 CACHE_DEFAULT_TIMEOUT = 120
 CACHE_REDIS_HOST = '127.0.0.1'
 CACHE_REDIS_PORT = 6379
@@ -47,3 +48,6 @@ SECRET_KEY = "bruce"
 # 设置项目的跟路径
 # dirname就可以获取当前所在文件的文件夹，就是Blog
 BASE_DIR = os.path.dirname(__file__)
+
+# session.permanent=True的情况下设置过期时间
+PERMANENT_SESSION_LIFETIME = timedelta(days=7)
