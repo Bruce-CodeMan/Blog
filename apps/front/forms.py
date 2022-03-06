@@ -2,8 +2,9 @@
 # @Author : Bruce
 
 from wtforms import Form, ValidationError
-from wtforms.fields import StringField, IntegerField
+from wtforms.fields import StringField, IntegerField, FileField
 from wtforms.validators import Email, Length, EqualTo
+from flask_wtf.file import FileAllowed, FileSize
 from models.auth import UserModel
 from exts import cache
 from flask import request
@@ -19,6 +20,7 @@ class BaseForm(Form):
         return message_list
 
 
+# 注册表单验证
 class RegisterForm(BaseForm):
     email = StringField(validators=[Email(message="请输入正确的邮箱!")])
     email_captcha = StringField(validators=[Length(6, 6, message="请输入正确格式的邮箱验证码")])
@@ -58,7 +60,18 @@ class RegisterForm(BaseForm):
             raise ValidationError(message="图形验证码错误!")
 
 
+# 登录表单验证
 class LoginForm(BaseForm):
     email = StringField(validators=[Email(message="请输入正确格式的邮箱")])
     password = StringField(validators=[Length(6, 20, message="请输入6-20位的密码")])
     remember_me = IntegerField()
+
+
+# 自定义头像表单验证
+class UploadAvatarForm(BaseForm):
+    image = FileField(validators=[FileAllowed(['jpg', 'jpeg', 'png'], message="图片格式不符合要求，请传递jpg,jpeg,png"), FileSize(max_size=(1024*1024*5), message="图片最大不能超过5M")])
+
+
+# 修改个人资料
+class EditProfileForm(BaseForm):
+    signature = StringField(validators=[Length(min=1, max=50, message="长度要在1-50之间！")])

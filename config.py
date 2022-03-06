@@ -51,3 +51,6 @@ BASE_DIR = os.path.dirname(__file__)
 
 # session.permanent=True的情况下设置过期时间
 PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+
+# 头像配置
+AVATARS_SAVE_PATH = os.path.join(BASE_DIR, "media", "avatars")

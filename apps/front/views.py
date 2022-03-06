@@ -1,9 +1,19 @@
 # @Time: 2022/3/3 1:15 下午
 # @Author: Bruce
+import os
 import time
 import string
 import random
-from flask import Blueprint, request, current_app, render_template, make_response, session
+from flask import (
+    Blueprint,
+    request,
+    current_app,
+    render_template,
+    make_response,
+    session,
+    redirect,
+    g
+)
 from exts import cache, db
 from utils import restful
 from utils.captcha import Captcha
@@ -11,17 +21,38 @@ from hashlib import md5
 from io import BytesIO
 from . import forms
 from models import auth
-front = Blueprint("fronts", __name__, url_prefix="/")
+from .decorator import login_required
+from flask_avatars import Identicon
+
+front = Blueprint("front", __name__, url_prefix="/")
+
+
+# 钩子函数
+@front.before_request
+def front_before_request():
+    if 'user_id' in session:
+        user_id = session.get('user_id')
+        user = auth.UserModel.query.get(user_id)
+        setattr(g, "user", user)
+
+
+# 上下文处理器
+@front.context_processor
+def front_context_processor():
+    if hasattr(g, "user"):
+        return {"user": g.user}
+    else:
+        return {}
 
 
 # 首页
 @front.route("/")
 def index():
-    return "hello"
+    return render_template("front/index.html")
 
 
 # 登录
-@front.route("/login", methods=["GET"])
+@front.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == 'GET':
         return render_template("front/login.html")
@@ -32,7 +63,7 @@ def login():
             password = form.password.data
             remember_me = form.remember_me.data
             user = auth.UserModel.query.filter_by(email=email).first()
-            if user:
+            if not user:
                 return restful.params_error("邮箱或者密码错误")
             if not user.check_password(password):
                 return restful.params_error("邮箱或者密码错误")
@@ -43,6 +74,13 @@ def login():
             return restful.ok()
         else:
             return restful.params_error(form.messages[0])
+
+
+# 退出
+@front.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 
 # 发送邮件
@@ -74,7 +112,10 @@ def register():
             username = form.username.data
             email = form.email.data
             password = form.password.data
-            user = auth.UserModel(username=username, email=email, password=password)
+            identicon = Identicon()
+            filenames = identicon.generate(text=md5(email.encode("utf-8")).hexdigest())
+            avatar = filenames[0]
+            user = auth.UserModel(username=username, email=email, password=password, avatar=avatar)
             db.session.add(user)
             db.session.commit()
             return restful.ok()
@@ -103,3 +144,45 @@ def graph_captcha():
     # 3600秒就是1个小时
     resp.set_cookie("_graph_captcha_key", key, max_age=3600)
     return resp
+
+
+# 个人设置
+@front.get("/setting")
+@login_required
+def setting():
+    return render_template("front/setting.html")
+
+
+# 自定义上传头像
+@front.post("/avatar/upload")
+@login_required
+def upload_avatar():
+     form = forms.UploadAvatarForm(request.files)
+     if form.validate():
+         image = form.image.data
+         filename = image.filename
+         _, ext = os.path.splitext(filename)
+         # 不适用用户上传的文件，容易被黑客攻击
+         filename = md5((g.user.email + str(time.time())).encode("utf-8")).hexdigest() + ext
+         image_path = os.path.join(current_app.config["AVATARS_SAVE_PATH"], filename)
+         image.save(image_path)
+         g.user.avatar = filename
+         db.session.commit()
+         return restful.ok(data={"avatar": filename})
+     else:
+         message = form.messages[0]
+         return restful.params_error(message=message)
+
+
+# 修改个人资料
+@front.post("/profile/edit")
+@login_required
+def edit_profile():
+    form = forms.EditProfileForm(request.form)
+    if form.validate():
+        signature = form.signature.data
+        g.user.signature = signature
+        db.session.commit()
+        return restful.ok()
+    else:
+        return restful.params_error(form.messages[0])
