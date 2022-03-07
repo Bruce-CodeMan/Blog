@@ -8,3 +8,8 @@ media = Blueprint("media", __name__, url_prefix="/media")
 @media.get("/avatar/<filename>")
 def get_avatar(filename):
     return send_from_directory(current_app.config["AVATARS_SAVE_PATH"], filename)
+
+
+@media.get("/posters/<filename>")
+def get_poster(filename):
+    return send_from_directory(current_app.config["POSTERS_SAVE_PATH"], filename)

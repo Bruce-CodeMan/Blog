@@ -3,7 +3,7 @@
 
 from wtforms import Form, ValidationError
 from wtforms.fields import StringField, IntegerField, FileField
-from wtforms.validators import Email, Length, EqualTo
+from wtforms.validators import Email, Length, EqualTo, InputRequired
 from flask_wtf.file import FileAllowed, FileSize
 from models.auth import UserModel
 from exts import cache
@@ -75,3 +75,15 @@ class UploadAvatarForm(BaseForm):
 # 修改个人资料
 class EditProfileForm(BaseForm):
     signature = StringField(validators=[Length(min=1, max=50, message="长度要在1-50之间！")])
+
+
+# 上传帖子图片的表单验证
+class UploadImgForm(BaseForm):
+    image = FileField(validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], message="图片格式不正确，请传递jpg,jpeg,png,gif"), FileSize(max_size=(1024*1024*10), message="图片最大不能超过10M")])
+
+
+# 发布帖子的表单
+class UploadPosterForm(BaseForm):
+    title = StringField(validators=[Length(min=3, max=200, message="帖子的标题必须在3-200之间")])
+    board_id = IntegerField(validators=[InputRequired(message="请传入板块的ID")])
+    content = StringField(validators=[InputRequired(message="内容不允许为空")])

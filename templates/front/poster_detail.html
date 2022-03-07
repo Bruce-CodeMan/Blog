@@ -1,0 +1,27 @@
+{% extends "front/base.html" %}
+
+{% block title %}
+帖子详情
+{% endblock %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='lib/highlight/highlight.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/highlight/styles/github-dark.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='front/css/post_detail.css') }}">
+<script src="{{ url_for('static', filename='front/js/poster_detail.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="post-container">
+      <h2>{{ poster.title }}</h2>
+      <p style="font-size: 13px;color:#8c8c8c;border-bottom:1px solid #e6e6e6;margin-top: 20px;">
+        <span style="margin-right: 20px">发表时间：{{ poster.create_time }}</span> |
+        <span style="margin-left: 20px;margin-right: 20px;">作者：{{ poster.author.username }}</span> |
+        <span style="margin-left: 20px;margin-right: 20px;">所属板块：{{ poster.border.name }}</span> |
+        <span style="margin-left: 20px;">评论数： 1000</span>
+      </p>
+      <div class="post-content">
+        {{ poster.content|safe }}
+      </div>
+    </div>
+{% endblock %}

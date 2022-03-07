@@ -12,7 +12,9 @@ from flask import (
     make_response,
     session,
     redirect,
-    g
+    g,
+    jsonify,
+    url_for
 )
 from exts import cache, db
 from utils import restful
@@ -195,4 +197,60 @@ def edit_profile():
 def poster_public():
     if request.method == "GET":
         borders = border.BorderModel.query.all()
-        return render_template("front/poster_public.html", borders=borders)
+        return render_template("front/public_poster.html", borders=borders)
+    else:
+        form = forms.UploadPosterForm(request.form)
+        if form.validate():
+            title = form.title.data
+            board_id = form.board_id.data
+            content = form.content.data
+            try:
+                board = border.BorderModel.query.get(board_id)
+            except Exception as e:
+                return restful.params_error("板块不存在")
+            poster = border.PosterModel(
+                title=title,
+                content=content,
+                border=board,
+                author=g.user
+            )
+            db.session.add(poster)
+            db.session.commit()
+            return restful.ok(data={"poster_id": poster.id})
+        else:
+            return restful.params_error(message=form.messages[0])
+
+
+# 帖子图片上传的保存路径
+@front.post("/poster/image/upload")
+@login_required
+def poster_image_upload():
+    form = forms.UploadImgForm(request.files)
+    if form.validate():
+        image = form.image.data
+        filename = image.filename
+        _, ext = os.path.splitext(filename)
+        filename = md5((g.user.email + str(time.time())).encode("utf-8")).hexdigest() + ext
+        image_path = os.path.join(current_app.config["POSTERS_SAVE_PATH"], filename)
+        image.save(image_path)
+        return jsonify({
+            "errno": 0,
+            "data": [{
+                "url": url_for("media.get_poster", filename=filename),
+                "alt": filename,
+                "href": ""
+            }]
+        })
+    else:
+        return restful.params_error(form.messages[0])
+
+
+# 帖子详情页面
+@front.get("/poster/detail/<int:poster_id>")
+@login_required
+def poster_detail(poster_id):
+    try:
+        poster_model = border.PosterModel.query.get(poster_id)
+    except Exception as e:
+        return "404"
+    return render_template("front/poster_detail.html", poster=poster_model)

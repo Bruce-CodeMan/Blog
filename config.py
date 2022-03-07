@@ -54,3 +54,6 @@ PERMANENT_SESSION_LIFETIME = timedelta(days=7)
 
 # 头像配置
 AVATARS_SAVE_PATH = os.path.join(BASE_DIR, "media", "avatars")
+
+# 帖子图片地址
+POSTERS_SAVE_PATH = os.path.join(BASE_DIR, "media", "posters")
