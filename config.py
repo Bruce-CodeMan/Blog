@@ -5,7 +5,7 @@ from datetime import timedelta
 
 # 配置数据库
 DB_USERNAME = 'root'
-DB_PASSWORD = '123456'
+DB_PASSWORD = '12345678'
 DB_HOST = '127.0.0.1'
 DB_PORT = '3306'
 DB_NAME = 'blog'
