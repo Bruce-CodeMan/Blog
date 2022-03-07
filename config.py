@@ -57,3 +57,6 @@ AVATARS_SAVE_PATH = os.path.join(BASE_DIR, "media", "avatars")
 
 # 帖子图片地址
 POSTERS_SAVE_PATH = os.path.join(BASE_DIR, "media", "posters")
+
+# 每页展示帖子的数量
+PER_PAGE_COUNT = 10

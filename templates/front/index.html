@@ -51,53 +51,62 @@
               </div>
             <div class="post-group">
               <ul class="post-group-head">
-                  <li class="active"><a href="#">最新</a></li>
-                  <li><a href="#">点赞最多</a></li>
-                  <li><a href="#">评论最多</a></li>
+                  {% if st == 1 %}
+                  <li class="active">
+                  {% else %}
+                  <li>
+                  {% endif %}
+                      <a href="{{ url_for('front.index', st=1, bd=bd) }}">最新</a></li>
+                  <li>
+
+                  {% if st == 2 %}
+                   <li class="active">
+                  {% else %}
+                  <li>
+                  {% endif %}
+                      <a href="{{ url_for('front.index', st=2, bd=bd) }}">评论最多</a></li>
               </ul>
               <ul class="post-list-group">
+                  {% for poster in posters %}
                   <li>
                     <div class="author-avatar-group">
-                      <img src="../images/avatar.jpg" alt="">
+                      <img src="{{ url_for('media.get_avatar', filename=poster.author.avatar) }}" alt="">
                     </div>
                     <div class="post-info-group">
                       <p class="post-title">
-                        <a href="post_detail.html">如何零基础自学Python？</a>
+                        <a href="{{ url_for('front.poster_detail', poster_id=poster.id) }}">{{ poster.title }}</a>
                       </p>
                       <p class="post-info">
-                        <span>作者：张三</span>
-                        <span>发表时间：2022年12月12日</span>
-                        <span>评论:10</span>
-                        <span>阅读:100</span>
+                        <span>作者：{{ poster.author.username }}</span>
+                        <span>发表时间：{{ poster.create_time }}</span>
+                        <span>评论:{{ poster.comments|length }}</span>
                       </p>
                     </div>
                   </li>
-                  <li>
-                    <div class="author-avatar-group">
-                      <img src="../images/avatar.jpg" alt="">
-                    </div>
-                    <div class="post-info-group">
-                      <p class="post-title">
-                        <a href="#">如何零基础自学Python？</a>
-                      </p>
-                      <p class="post-info">
-                        <span>作者：张三</span>
-                        <span>发表时间：2022年12月12日</span>
-                        <span>评论:10</span>
-                        <span>阅读:100</span>
-                      </p>
-                    </div>
-                  </li>
+                  {% endfor %}
               </ul>
+                <div style="text-align: center;">
+                    {{ pagination.links }}
+                </div>
             </div>
           </div><div class="sm-container">
             <div style="padding-bottom:10px;">
               <a href="{{ url_for('front.poster_public') }}" class="btn btn-warning btn-block">发布帖子</a>
             </div>
             <div class="list-group">
+                {% if bd %}
+                <a href="/" class="list-group-item">所有板块</a>
+                {% else %}
                 <a href="/" class="list-group-item active">所有板块</a>
+                {% endif %}
+
                 {% for border in borders %}
-                  <a href="#" class="list-group-item">{{ border.name }}</a>
+                {% if bd == border.id %}
+                  <a href="{{ url_for('front.index', bd=border.id, page=1) }}" class="list-group-item active">
+                {% else %}
+                <a href="{{ url_for('front.index', bd=border.id, page=1) }}" class="list-group-item">
+                {% endif %}
+                    {{ border.name }}</a>
                 {% endfor %}
           </div>
 {% endblock %}

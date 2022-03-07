@@ -87,3 +87,9 @@ class UploadPosterForm(BaseForm):
     title = StringField(validators=[Length(min=3, max=200, message="帖子的标题必须在3-200之间")])
     board_id = IntegerField(validators=[InputRequired(message="请传入板块的ID")])
     content = StringField(validators=[InputRequired(message="内容不允许为空")])
+
+
+# 发布评论
+class PublicCommentForm(BaseForm):
+    content = StringField(validators=[InputRequired(message="内容不允许为空")])
+    poster_id = IntegerField(validators=[InputRequired(message="请传入板块的ID")])

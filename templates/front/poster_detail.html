@@ -24,4 +24,32 @@
         {{ poster.content|safe }}
       </div>
     </div>
+<div class="comment-group">
+  <h3>评论列表</h3>
+  <ul class="comment-list-group">
+      {% for comment in poster.comments %}
+    <li>
+      <div class="avatar-group">
+        <img src="{{ url_for('media.get_avatar', filename=comment.author.avatar) }}" alt="">
+      </div>
+      <div class="comment-content">
+        <p class="author-info">
+          <span>{{ comment.author.username }}</span>
+          <span>{{ comment.create_time }}</span>
+        </p>
+        <p class="comment-txt">
+            {{ comment.content }}
+        </p>
+      </div>
+    </li>
+      {% endfor %}
+  </ul>
+</div>
+<div class="add-comment-group">
+  <h3>发表评论</h3>
+  <textarea name="comment" id="comment-textarea" style="width: 100%; resize:vertical;"></textarea>
+  <div class="comment-btn-group">
+    <button class="btn btn-primary" id="comment-btn" data-poster-id="{{ poster.id }}" data-user-id="{{ user.id if user else '' }}">发表评论</button>
+  </div>
+</div>
 {% endblock %}

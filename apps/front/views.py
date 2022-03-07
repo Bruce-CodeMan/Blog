@@ -25,6 +25,8 @@ from . import forms
 from models import auth, border
 from .decorator import login_required
 from flask_avatars import Identicon
+from flask_paginate import get_page_parameter, Pagination
+from sqlalchemy import func
 
 front = Blueprint("front", __name__, url_prefix="/")
 
@@ -50,8 +52,39 @@ def front_context_processor():
 # 首页
 @front.route("/")
 def index():
+    # 排序
+    sort = request.args.get("st", type=int, default=1)
+    # 过滤
+    bd = request.args.get("bd", type=int, default=None)
     borders = border.BorderModel.query.order_by(border.BorderModel.priority.desc()).all()
-    return render_template("front/index.html", borders=borders)
+    posters_query = border.PosterModel.query
+    if sort == 1:
+        posters_query = posters_query.order_by(border.PosterModel.create_time.desc())
+    else:
+        posters_query = db.session.query(border.PosterModel).\
+            outerjoin(border.CommentModel).\
+            group_by(border.PosterModel.id).\
+            order_by(func.count(border.CommentModel.id).desc(), border.PosterModel.create_time.desc())
+
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    start = (page - 1) * current_app.config["PER_PAGE_COUNT"]
+    end = start + current_app.config["PER_PAGE_COUNT"]
+
+    if bd:
+        posters_query = posters_query.filter(border.PosterModel.border_id==bd)
+    # 同级帖子数
+    total = posters_query.count()
+
+    posters = posters_query.slice(start, end)
+    pagination = Pagination(bs_version=3, page=page, total=total)
+    context = {
+        "borders": borders,
+        "posters": posters,
+        "pagination": pagination,
+        "st": sort,
+        "bd": bd
+    }
+    return render_template("front/index.html", **context)
 
 
 # 登录
@@ -247,10 +280,31 @@ def poster_image_upload():
 
 # 帖子详情页面
 @front.get("/poster/detail/<int:poster_id>")
-@login_required
 def poster_detail(poster_id):
     try:
         poster_model = border.PosterModel.query.get(poster_id)
     except Exception as e:
         return "404"
     return render_template("front/poster_detail.html", poster=poster_model)
+
+
+# 发布评论
+@front.post("/comment")
+@login_required
+def public_comment():
+    form = forms.PublicCommentForm(request.form)
+    if form.validate():
+        content = form.content.data
+        poster_id = form.poster_id.data
+        try:
+            border.PosterModel.query.get(poster_id)
+        except Exception as e:
+            return restful.params_error(message="帖子不存在")
+        comment = border.CommentModel(content=content,
+                                      poster_id=poster_id,
+                                      author_id=g.user.id)
+        db.session.add(comment)
+        db.session.commit()
+        return restful.ok()
+    else:
+        return restful.params_error(form.messages[0])

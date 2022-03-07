@@ -43,7 +43,7 @@ class CommentModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.Text, nullable=False)
     create_time = db.Column(db.DateTime, default=datetime.now)
-    post_id = db.Column(db.Integer, db.ForeignKey("poster.id"))
+    poster_id = db.Column(db.Integer, db.ForeignKey("poster.id"))
     author_id = db.Column(db.String(100), db.ForeignKey("user.id"), nullable=False)
 
     post = db.relationship("PosterModel", backref=db.backref('comments', order_by="CommentModel.create_time.desc()", cascade="delete, delete-orphan"))
