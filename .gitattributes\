@@ -1,3 +1,0 @@
-# Auto detect text files and perform LF
-* text=auto
-*.html linguist-language=python
