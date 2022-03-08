@@ -1,5 +1,8 @@
 # @Time: 2022/3/3 10:38 上午
 # @Author: Bruce
+# @Description : 主的入口函数
+
+
 import commands
 from flask import Flask
 from flask_migrate import Migrate

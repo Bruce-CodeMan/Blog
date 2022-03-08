@@ -1,5 +1,7 @@
 # @Time : 2022/3/6 23:11 
 # @Author : Bruce
+# @Description : 博客的数据库模型
+
 
 from exts import db
 from datetime import datetime

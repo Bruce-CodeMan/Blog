@@ -1,5 +1,6 @@
 # @Time : 2022/3/6 12:39
 # @Author : Bruce
+# @Description : 博客表单文件
 
 from wtforms import Form, ValidationError
 from wtforms.fields import StringField, IntegerField, FileField
@@ -10,6 +11,7 @@ from exts import cache
 from flask import request
 
 
+# 自定义基础表单，方便用于返回错误
 class BaseForm(Form):
     @property
     def messages(self):

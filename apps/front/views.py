@@ -1,5 +1,7 @@
 # @Time: 2022/3/3 1:15 下午
 # @Author: Bruce
+# @Description : 博客的视图函数
+
 import os
 import time
 import string

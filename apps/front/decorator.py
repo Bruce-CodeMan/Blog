@@ -1,5 +1,6 @@
 # @Time : 2022/3/6 17:47 
 # @Author : Bruce
+# @Description : 非登录的用户拦截器
 
 from flask import g, redirect, url_for
 from functools import wraps

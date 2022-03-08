@@ -1,5 +1,7 @@
 # @Time: 2022/3/3 11:10 上午
 # @Author: Bruce
+# @Description : 用户的数据库模型
+
 
 import shortuuid
 from exts import db

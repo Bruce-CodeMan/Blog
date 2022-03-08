@@ -1,5 +1,7 @@
 # @Time: 2022/3/3 4:29 下午
 # @Author: Bruce
+# @Description : celery的工具模型
+
 
 from flask_mail import Message
 from exts import mail

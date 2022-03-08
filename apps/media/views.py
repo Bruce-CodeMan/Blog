@@ -1,5 +1,8 @@
 # @Time : 2022/3/6 20:22 
 # @Author : Bruce
+# @Description : 获取头像和发布帖子的照片
+
+
 from flask import Blueprint, send_from_directory, current_app
 
 media = Blueprint("media", __name__, url_prefix="/media")
