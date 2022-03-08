@@ -9,13 +9,14 @@ from flask_migrate import Migrate
 from models import auth
 from apps.front import front
 from apps.media import media
+from apps.cms import cms
 from blog_celery import make_celery
 
 
 # 导入配置
 import config
-# 导入数据库
-from exts import db, mail, cache, csrf, avatars
+# 导入flask第三方对象
+from exts import db, mail, cache, csrf, avatars, jwt
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -25,6 +26,7 @@ mail.init_app(app)
 cache.init_app(app)
 csrf.init_app(app)
 avatars.init_app(app)
+jwt.init_app(app)
 
 # 构建celery
 celery = make_celery(app)
@@ -34,6 +36,7 @@ migrate = Migrate(app, db)
 # 注册蓝图
 app.register_blueprint(front)
 app.register_blueprint(media)
+app.register_blueprint(cms)
 
 # 注册命令
 app.cli.command("init_board")(commands.init_boards)

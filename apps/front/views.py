@@ -29,6 +29,7 @@ from .decorator import login_required
 from flask_avatars import Identicon
 from flask_paginate import get_page_parameter, Pagination
 from sqlalchemy import func
+from flask_jwt_extended import create_access_token
 
 front = Blueprint("front", __name__, url_prefix="/")
 
@@ -106,10 +107,13 @@ def login():
             if not user.check_password(password):
                 return restful.params_error("邮箱或者密码错误")
             session['user_id'] = user.id
+            token = ""
+            if user.is_staff:
+                token = create_access_token(identity=user.id)
             if remember_me == 1:
                 # session的默认时间就是浏览器的关闭时间
                 session.permanent = True
-            return restful.ok()
+            return restful.ok(data={"token": token})
         else:
             return restful.params_error(form.messages[0])
 

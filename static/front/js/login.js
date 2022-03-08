@@ -16,7 +16,10 @@ LoginHandler.prototype.listenSubmitEvent = function () {
             },
             success:function (result) {
                 if(result['code'] == 200) {
-                    window.location = "/"
+                    // 获取token
+                    var token = result["data"]["token"]
+                    localStorage.setItem("JWT_TOKEN_KEY", token)
+                    window.location.href = "/"
                 }else {
                     alert(result['message']);
                 }
