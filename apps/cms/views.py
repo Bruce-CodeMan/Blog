@@ -38,7 +38,6 @@ def index():
 
 # 后台上传轮播图的接口
 @cms.post("/banner/image/upload")
-@jwt_required()
 def upload_banner_image():
     form = UploadBannerImageForm(request.files)
     if form.validate():
@@ -54,6 +53,7 @@ def upload_banner_image():
 
 
 @cms.post("/banner/add")
+@jwt_required()
 def add_banner():
     form = AddBannerForm(request.form)
     if form.validate():
@@ -68,3 +68,11 @@ def add_banner():
         return restful.ok(data=banner_model.to_dict())
     else:
         return restful.params_error(form.messages[0])
+
+
+@cms.get("/banner/list")
+@jwt_required()
+def list_banner():
+    banners = BannerModel.query.order_by(BannerModel.create_time.desc()).all()
+    banner_dict = [banner.to_dict() for banner in banners]
+    return restful.ok(data=banner_dict)
