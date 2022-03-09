@@ -5,6 +5,7 @@
 
 from exts import db
 from datetime import datetime
+from sqlalchemy_serializer import SerializerMixin
 
 
 # 板块
@@ -30,7 +31,7 @@ class PosterModel(db.Model):
 
 
 # 轮播图
-class BannerModel(db.Model):
+class BannerModel(db.Model, SerializerMixin):
     __tablename__ = "banner"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)

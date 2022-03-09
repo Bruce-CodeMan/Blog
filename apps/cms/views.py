@@ -5,12 +5,27 @@
 import os
 import time
 from hashlib import md5
-from .forms import UploadBannerImageForm
+from .forms import UploadBannerImageForm, AddBannerForm
 from flask import Blueprint, request, g, current_app
 from utils import restful
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from models.auth import UserModel
+from models.border import BannerModel
+from exts import db
 
 cms = Blueprint("cms", __name__, url_prefix="/cms")
+
+
+# 获取用户的token
+@cms.before_request
+@jwt_required()
+def cms_before_request():
+    if request.method == "OPTIONS":
+        return
+    identity = get_jwt_identity()
+    user = UserModel.query.filter_by(id=identity).first()
+    if user:
+        setattr(g, "user", user)
 
 
 @cms.get("/")
@@ -33,6 +48,23 @@ def upload_banner_image():
         filename = md5((g.user.email+str(time.time())).encode("utf-8")).hexdigest() + ext
         image_path = os.path.join(current_app.config["BANNERS_SAVE_PATH"], filename)
         image.save(image_path)
-        return restful.ok({"image_url": filename})
+        return restful.ok(data={"image_url": filename})
     else:
         return restful.params_error(message=form.messages[0])
+
+
+@cms.post("/banner/add")
+def add_banner():
+    form = AddBannerForm(request.form)
+    if form.validate():
+        name = form.name.data
+        image_url = form.image_url.data
+        link_url = form.link_url.data
+        priority = form.priority.data
+        banner_model = BannerModel(name=name, image_url=image_url, link_url=link_url, priority=priority)
+        db.session.add(banner_model)
+        db.session.commit()
+        print(banner_model.to_dict())
+        return restful.ok(data=banner_model.to_dict())
+    else:
+        return restful.params_error(form.messages[0])
