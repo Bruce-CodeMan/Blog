@@ -55,11 +55,17 @@ BASE_DIR = os.path.dirname(__file__)
 # session.permanent=True的情况下设置过期时间
 PERMANENT_SESSION_LIFETIME = timedelta(days=7)
 
-# 头像配置
+# 头像图片地址
 AVATARS_SAVE_PATH = os.path.join(BASE_DIR, "media", "avatars")
 
 # 帖子图片地址
 POSTERS_SAVE_PATH = os.path.join(BASE_DIR, "media", "posters")
 
+# 轮播图图片地址
+BANNERS_SAVE_PATH = os.path.join(BASE_DIR, "media", "banners")
+
 # 每页展示帖子的数量
 PER_PAGE_COUNT = 10
+
+# 设置JWT过期时间
+JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)

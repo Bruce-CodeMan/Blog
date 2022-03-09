@@ -16,3 +16,8 @@ def get_avatar(filename):
 @media.get("/posters/<filename>")
 def get_poster(filename):
     return send_from_directory(current_app.config["POSTERS_SAVE_PATH"], filename)
+
+
+@media.get("/banners/<filename>")
+def get_banner(filename):
+    return send_from_directory(current_app.config["BANNERS_SAVE_PATH"], filename)

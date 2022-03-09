@@ -5,7 +5,7 @@
 import requests
 
 headers = {
-    "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NjczMjE4MiwianRpIjoiYzE4MjFjNDYtODE2MS00YjQxLTkyY2EtYmFmNDk0YmY1ZDM4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IlVhRXVhUmpSTUc0dnhYbzRzTlo4UDciLCJuYmYiOjE2NDY3MzIxODIsImV4cCI6MTY0NjczMzA4Mn0.cdwBs8FBqbdMLfOWV9M0XfQ6Nb5pojopb4tFXG4ufSE"
+    "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NjczNDg0MSwianRpIjoiZmJkZWU3MDAtOGM5OC00MzA3LTgwMDktYWY3MjcxYTNhNGZhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IlVhRXVhUmpSTUc0dnhYbzRzTlo4UDciLCJuYmYiOjE2NDY3MzQ4NDEsImV4cCI6MTY0NjczNTc0MX0.ovyasqNR8SnT9x2uBIDzP1UXM_oCZtMtTfjNafObPjkg"
 }
 
 resp = requests.get("http://127.0.0.1:5000/cms", headers=headers)

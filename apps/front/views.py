@@ -113,7 +113,7 @@ def login():
             if remember_me == 1:
                 # session的默认时间就是浏览器的关闭时间
                 session.permanent = True
-            return restful.ok(data={"token": token})
+            return restful.ok(data={"token": token, "user": user.to_dict()})
         else:
             return restful.params_error(form.messages[0])
 

@@ -18,7 +18,9 @@ LoginHandler.prototype.listenSubmitEvent = function () {
                 if(result['code'] == 200) {
                     // 获取token
                     var token = result["data"]["token"]
+                    var user = result["data"]["user"]
                     localStorage.setItem("JWT_TOKEN_KEY", token)
+                    localStorage.setItem("USER_KEY", JSON.stringify(user))
                     window.location.href = "/"
                 }else {
                     alert(result['message']);
