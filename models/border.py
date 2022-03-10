@@ -9,7 +9,8 @@ from sqlalchemy_serializer import SerializerMixin
 
 
 # 板块
-class BorderModel(db.Model):
+class BorderModel(db.Model, SerializerMixin):
+    serialize_only = ("id", "name", "priority", "create_time")
     __tablename__ = "border"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(20), unique=True)
@@ -18,7 +19,7 @@ class BorderModel(db.Model):
 
 
 # 帖子
-class PosterModel(db.Model):
+class PosterModel(db.Model, SerializerMixin):
     __tablename__ = "poster"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(200), nullable=False)

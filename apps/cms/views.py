@@ -10,7 +10,7 @@ from flask import Blueprint, request, g, current_app
 from utils import restful
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.auth import UserModel
-from models.border import BannerModel
+from models.border import BannerModel, PosterModel
 from exts import db
 
 cms = Blueprint("cms", __name__, url_prefix="/cms")
@@ -115,3 +115,17 @@ def edit_banner():
         return restful.ok(banner_model.to_dict())
     else:
         return restful.params_error(message=form.messages[0])
+
+
+# 帖子获取
+@cms.get("/poster/list")
+def list_poster():
+    page = request.form.get("page", default=1, type=int)
+    per_page_count = current_app.config.get("PER_PAGE_COUNT")
+    start = (page - 1) * per_page_count
+    end = start + per_page_count
+    query_poster = PosterModel.query.order_by(PosterModel.create_time.desc())
+    total_count = query_poster.count()
+    posters = query_poster.slice(start, end)
+    poster_list = [poster.to_dict() for poster in posters]
+    return restful.ok(data={"total_count": total_count, "poster_list": poster_list, "page": page})
