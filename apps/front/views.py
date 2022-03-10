@@ -80,12 +80,16 @@ def index():
 
     posters = posters_query.slice(start, end)
     pagination = Pagination(bs_version=3, page=page, total=total)
+
+    # 轮播图的界面
+    banners = border.BannerModel.query.order_by(border.BannerModel.priority.desc()).all()
     context = {
         "borders": borders,
         "posters": posters,
         "pagination": pagination,
         "st": sort,
-        "bd": bd
+        "bd": bd,
+        "banners": banners
     }
     return render_template("front/index.html", **context)
 

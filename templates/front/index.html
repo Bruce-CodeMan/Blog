@@ -10,33 +10,28 @@
             <div id="carousel-example-generic" class="carousel slide index-banner" data-ride="carousel">
               <!-- 指示器 -->
               <ol class="carousel-indicators">
-                <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-                <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
-                <li data-target="#carousel-example-generic" data-slide-to="3"></li>
+                  {% for banner in banners %}
+                  {% if loop.first %}
+                  <li data-target="#carousel-example-generic" data-slide-to="{{ loop.index0 }}" class="active"></li>
+                  {% else %}
+                  <li data-target="#carousel-example-generic" data-slide-to="{{ loop.index0 }}"></li>
+                  {% endif %}
+                  {% endfor %}
               </ol>
               <!-- 轮播图 -->
               <div class="carousel-inner" role="listbox">
+                  {% for banner in banners %}
+
+                  {% if loop.first %}
                   <div class="item active">
-                    <a href="www.baidu.com">
-                      <img src="../images/banner1.jpg" alt="...">
+                  {% else %}
+                      <div class="item">
+                      {% endif %}
+                    <a href="{{ banner.link_url }}">
+                      <img src="{{ banner.image_url }}" alt="...">
                     </a>
                   </div>
-                  <div class="item">
-                    <a href="www.baidu.com">
-                      <img src="../images/banner2.jpg" alt="...">
-                    </a>
-                  </div>
-                  <div class="item">
-                    <a href="www.baidu.com">
-                      <img src="../images/banner3.jpg" alt="...">
-                    </a>
-                  </div>
-                  <div class="item">
-                    <a href="www.baidu.com">
-                      <img src="../images/banner4.png" alt="...">
-                    </a>
-                  </div>
+                  {% endfor %}
               </div>
 
                 <!-- 左右切换的控制按钮 -->
