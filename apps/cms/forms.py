@@ -18,3 +18,7 @@ class AddBannerForm(BaseForm):
     image_url = StringField(validators=[InputRequired(message="请输入传入图片的路径")])
     link_url = StringField(validators=[InputRequired(message="请传入图片的链接")])
     priority = IntegerField(validators=[InputRequired(message="请传入优先级")])
+
+
+class EditBannerForm(AddBannerForm):
+    id = IntegerField(validators=[InputRequired(message="请输入轮播图的id")])

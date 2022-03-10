@@ -5,7 +5,7 @@
 import os
 import time
 from hashlib import md5
-from .forms import UploadBannerImageForm, AddBannerForm
+from .forms import UploadBannerImageForm, AddBannerForm, EditBannerForm
 from flask import Blueprint, request, g, current_app
 from utils import restful
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -53,7 +53,6 @@ def upload_banner_image():
 
 
 @cms.post("/banner/add")
-@jwt_required()
 def add_banner():
     form = AddBannerForm(request.form)
     if form.validate():
@@ -71,8 +70,48 @@ def add_banner():
 
 
 @cms.get("/banner/list")
-@jwt_required()
 def list_banner():
     banners = BannerModel.query.order_by(BannerModel.create_time.desc()).all()
     banner_dict = [banner.to_dict() for banner in banners]
     return restful.ok(data=banner_dict)
+
+
+@cms.post("/banner/delete")
+def delete_banner():
+    banner_id = request.form.get("id")
+    if not banner_id:
+        return restful.params_error(message="请传入要删除的ID")
+    try:
+        banner_model = BannerModel.query.get(banner_id)
+    except:
+        return restful.params_error(message="轮播图不存在")
+    db.session.delete(banner_model)
+    db.session.commit()
+    return restful.ok()
+
+
+@cms.post("/banner/edit")
+def edit_banner():
+    form = EditBannerForm(request.form)
+    if form.validate():
+        banner_id = form.id.data
+        try:
+            banner_model = BannerModel.query.get(banner_id)
+        except:
+            return restful.params_error(message="轮播图不存在")
+        # 表单获取数据
+        name = form.name.data
+        image_url = form.image_url.data
+        link_url = form.link_url.data
+        priority = form.priority.data
+
+        # 数据的赋值
+        banner_model.name = name
+        banner_model.image_url = image_url
+        banner_model.link_url = link_url
+        banner_model.priority = priority
+
+        db.session.commit()
+        return restful.ok(banner_model.to_dict())
+    else:
+        return restful.params_error(message=form.messages[0])
