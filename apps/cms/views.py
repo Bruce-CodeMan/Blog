@@ -173,3 +173,32 @@ def delete_comment():
     db.session.delete(comment_model)
     db.session.commit()
     return restful.ok()
+
+
+# 获取用户列表
+@cms.get("/user/list")
+def list_user():
+    page = request.args.get("page", default=1, type=int)
+    per_page_count = current_app.config.get("PER_PAGE_COUNT")
+    start = (page - 1) * per_page_count
+    end = start + per_page_count
+    query_user = UserModel.query.order_by(UserModel.join_time.desc())
+    total_count = query_user.count()
+    users = query_user.slice(start, end)
+    user_list = [user.to_dict() for user in users]
+    return restful.ok(data={
+        "total_count": total_count,
+        "user_list": user_list,
+        "page": page
+    })
+
+
+# 用户激活或者拉黑
+@cms.post("/user/active")
+def active_user():
+    is_active = request.form.get("is_active", type=int)
+    user_id = request.form.get("id")
+    user = UserModel.query.get(user_id)
+    user.is_active = bool(is_active)
+    db.session.commit()
+    return restful.ok(data=user.to_dict())
