@@ -36,7 +36,7 @@ def index():
     return restful.ok(message="success", data={"identity": identity})
 
 
-# 后台上传轮播图的接口
+# 上传轮播图照片
 @cms.post("/banner/image/upload")
 def upload_banner_image():
     form = UploadBannerImageForm(request.files)
@@ -52,6 +52,7 @@ def upload_banner_image():
         return restful.params_error(message=form.messages[0])
 
 
+# 增加轮播图信息
 @cms.post("/banner/add")
 def add_banner():
     form = AddBannerForm(request.form)
@@ -69,6 +70,7 @@ def add_banner():
         return restful.params_error(form.messages[0])
 
 
+# 获取轮播图列表
 @cms.get("/banner/list")
 def list_banner():
     banners = BannerModel.query.order_by(BannerModel.create_time.desc()).all()
@@ -76,6 +78,7 @@ def list_banner():
     return restful.ok(data=banner_dict)
 
 
+# 删除轮播图
 @cms.post("/banner/delete")
 def delete_banner():
     banner_id = request.form.get("id")
@@ -90,6 +93,7 @@ def delete_banner():
     return restful.ok()
 
 
+# 编辑轮播图
 @cms.post("/banner/edit")
 def edit_banner():
     form = EditBannerForm(request.form)
@@ -120,7 +124,7 @@ def edit_banner():
 # 帖子获取
 @cms.get("/poster/list")
 def list_poster():
-    page = request.form.get("page", default=1, type=int)
+    page = request.args.get("page", default=1, type=int)
     per_page_count = current_app.config.get("PER_PAGE_COUNT")
     start = (page - 1) * per_page_count
     end = start + per_page_count
@@ -129,3 +133,18 @@ def list_poster():
     posters = query_poster.slice(start, end)
     poster_list = [poster.to_dict() for poster in posters]
     return restful.ok(data={"total_count": total_count, "poster_list": poster_list, "page": page})
+
+
+# 删除帖子
+@cms.post("/poster/delete")
+def delete_poster():
+    poster_id = request.form.get("id")
+    try:
+        poster_model = PosterModel.query.get(poster_id)
+    except Exception as e:
+        print(e)
+        print()
+        return restful.params_error(message="帖子不存在")
+    db.session.delete(poster_model)
+    db.session.commit()
+    return restful.ok()
