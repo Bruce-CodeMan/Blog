@@ -20,6 +20,7 @@ class BorderModel(db.Model, SerializerMixin):
 
 # 帖子
 class PosterModel(db.Model, SerializerMixin):
+    serialize_only = ("id", "title", "content", "create_time", "border", "author")
     __tablename__ = "poster"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(200), nullable=False)
@@ -42,7 +43,7 @@ class BannerModel(db.Model, SerializerMixin):
     create_time = db.Column(db.DateTime, default=datetime.now)
 
 
-class CommentModel(db.Model):
+class CommentModel(db.Model, SerializerMixin):
     __tablename__ = 'comment'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.Text, nullable=False)
@@ -50,5 +51,5 @@ class CommentModel(db.Model):
     poster_id = db.Column(db.Integer, db.ForeignKey("poster.id"))
     author_id = db.Column(db.String(100), db.ForeignKey("user.id"), nullable=False)
 
-    post = db.relationship("PosterModel", backref=db.backref('comments', order_by="CommentModel.create_time.desc()", cascade="delete, delete-orphan"))
+    poster = db.relationship("PosterModel", backref=db.backref('comments', order_by="CommentModel.create_time.desc()", cascade="delete, delete-orphan"))
     author = db.relationship("UserModel", backref='comments')

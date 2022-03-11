@@ -10,7 +10,7 @@ from flask import Blueprint, request, g, current_app
 from utils import restful
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.auth import UserModel
-from models.border import BannerModel, PosterModel
+from models.border import BannerModel, PosterModel, CommentModel
 from exts import db
 
 cms = Blueprint("cms", __name__, url_prefix="/cms")
@@ -142,9 +142,34 @@ def delete_poster():
     try:
         poster_model = PosterModel.query.get(poster_id)
     except Exception as e:
-        print(e)
-        print()
         return restful.params_error(message="帖子不存在")
     db.session.delete(poster_model)
+    db.session.commit()
+    return restful.ok()
+
+
+# 评论展示
+@cms.get("/comment/list")
+def list_comment():
+    page = request.args.get("page", default=1, type=int)
+    per_page_count = current_app.config["PER_PAGE_COUNT"]
+    start = (page - 1) * per_page_count
+    end = start + per_page_count
+    query_comment = CommentModel.query.order_by(CommentModel.create_time.desc())
+    total_count = query_comment.count()
+    comments = query_comment.slice(start, end)
+    comment_list = [comment.to_dict() for comment in comments]
+    return restful.ok(data={"total_count": total_count, "comment_list": comment_list, "page": page})
+
+
+# 评论删除
+@cms.post("/comment/delete")
+def delete_comment():
+    comment_id = request.form.get("id")
+    try:
+        comment_model = CommentModel.query.get(comment_id)
+    except Exception as e:
+        return restful.params_error(message="评论不存在")
+    db.session.delete(comment_model)
     db.session.commit()
     return restful.ok()
