@@ -3,7 +3,7 @@
 # @Description : 博客的数据库模型
 
 
-from exts import db
+from exts import db, whoosh
 from datetime import datetime
 from sqlalchemy_serializer import SerializerMixin
 

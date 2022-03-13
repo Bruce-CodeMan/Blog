@@ -16,6 +16,7 @@ class UserModel(db.Model, SerializerMixin):
     id = db.Column(db.String(100), primary_key=True, default=shortuuid.uuid)
     email = db.Column(db.String(50), unique=True, nullable=False)
     username = db.Column(db.String(50), nullable=False, unique=True)
+    phone = db.Column(db.String(11), unique=True)
     _password = db.Column(db.String(200), nullable=False)
     avatar = db.Column(db.String(100))
     signature = db.Column(db.String(100))

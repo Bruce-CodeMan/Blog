@@ -7,11 +7,13 @@ import time
 from hashlib import md5
 from .forms import UploadBannerImageForm, AddBannerForm, EditBannerForm
 from flask import Blueprint, request, g, current_app
-from utils import restful
+from utils import restful, pages
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.auth import UserModel
-from models.border import BannerModel, PosterModel, CommentModel
+from models.border import BannerModel, PosterModel, CommentModel, BorderModel
 from exts import db
+from sqlalchemy import func
+from datetime import datetime, timedelta
 
 cms = Blueprint("cms", __name__, url_prefix="/cms")
 
@@ -125,9 +127,7 @@ def edit_banner():
 @cms.get("/poster/list")
 def list_poster():
     page = request.args.get("page", default=1, type=int)
-    per_page_count = current_app.config.get("PER_PAGE_COUNT")
-    start = (page - 1) * per_page_count
-    end = start + per_page_count
+    start, end = pages.get_pages(page)
     query_poster = PosterModel.query.order_by(PosterModel.create_time.desc())
     total_count = query_poster.count()
     posters = query_poster.slice(start, end)
@@ -152,9 +152,7 @@ def delete_poster():
 @cms.get("/comment/list")
 def list_comment():
     page = request.args.get("page", default=1, type=int)
-    per_page_count = current_app.config["PER_PAGE_COUNT"]
-    start = (page - 1) * per_page_count
-    end = start + per_page_count
+    start, end = pages.get_pages(page)
     query_comment = CommentModel.query.order_by(CommentModel.create_time.desc())
     total_count = query_comment.count()
     comments = query_comment.slice(start, end)
@@ -179,9 +177,7 @@ def delete_comment():
 @cms.get("/user/list")
 def list_user():
     page = request.args.get("page", default=1, type=int)
-    per_page_count = current_app.config.get("PER_PAGE_COUNT")
-    start = (page - 1) * per_page_count
-    end = start + per_page_count
+    start, end = pages.get_pages(page)
     query_user = UserModel.query.order_by(UserModel.join_time.desc())
     total_count = query_user.count()
     users = query_user.slice(start, end)
@@ -202,3 +198,44 @@ def active_user():
     user.is_active = bool(is_active)
     db.session.commit()
     return restful.ok(data=user.to_dict())
+
+
+# 首页板块数量的统计
+@cms.get("/board/poster/count")
+def board_poster_count():
+    # 要获取板块下的帖子数量
+    board_poster_count_list = db.session.query(BorderModel.name, func.count(BorderModel.name)).join(PosterModel).group_by(BorderModel.name).all()
+    board_names = [name[0] for name in board_poster_count_list]
+    board_counts = [count[1] for count in board_poster_count_list]
+    return restful.ok(data={"board_names": board_names, "board_counts": board_counts})
+
+
+# 首页近7天发帖数量
+@cms.get("/day7/poster/count")
+def day7_poster_count():
+    # 获取数据
+    now = datetime.now()
+    # 减6天,就是近7天
+    # 时间的增减
+    # 一定要把时分秒都要减为0，不然就只能获取到7天前当前时间的帖子
+    seven_day_ago_now = now - timedelta(days=6, hours=now.hour, minutes=now.minute, seconds=now.second, microseconds=now.microsecond)
+    day7_poster_count_list = db.session.query(func.date_format(PosterModel.create_time, "%Y-%m-%d"), func.count(PosterModel.id)).\
+        group_by(func.date_format(PosterModel.create_time, "%Y-%m-%d")).\
+        filter(PosterModel.create_time >= seven_day_ago_now).all()
+    day7_poster_count_dict = dict(day7_poster_count_list)
+    for x in range(7):
+        date = seven_day_ago_now + timedelta(days=x)
+        date_str = date.strftime("%Y-%m-%d")
+        if date_str not in day7_poster_count_dict:
+            day7_poster_count_dict[date_str] = 0
+    poster_date = sorted(list(day7_poster_count_dict.keys()))
+    poster_count = [day7_poster_count_dict[count] for count in poster_date]
+    return restful.ok(data={"poster_date": poster_date, "poster_count": poster_count})
+
+
+# 板块列表
+@cms.get("/board/list")
+def list_board():
+    page = request.args.get("page", default=1, type=int)
+    start, end = pages.get_pages(page)
+    pass

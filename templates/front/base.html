@@ -12,6 +12,7 @@
     <script src="{{ url_for('static', filename='/front/js/common/bruce_param.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='/front/css/front_base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='/front/css/index.css') }}">
+    <script src="{{ url_for('static', filename='/front/js/index.js') }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %} {% endblock %}</title>
     {% block head %}{% endblock %}
@@ -35,12 +36,12 @@
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="/">首页<span class="sr-only">(current)</span></a></li>
                 </ul>
-                <form class="navbar-form navbar-left">
+                <div class="navbar-form navbar-left">
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="请输入关键字">
+                        <input type="text" class="form-control" placeholder="请输入关键字" name="search">
                     </div>
-                    <button type="submit" class="btn btn-default">搜索</button>
-                </form>
+                    <button type="submit" class="btn btn-default" id="search_title">搜索</button>
+                </div>
                 <ul class="nav navbar-nav navbar-right">
                     {% if user %}
                     <li class="dropdown">
@@ -49,7 +50,9 @@
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li><a href="#">后台管理</a></li>
+                            {% if user.is_staff %}
+                            <li><a href="{{ url_for('front.cms') }}">后台管理</a></li>
+                            {% endif %}
                             <li><a href="{{ url_for('front.setting') }}">设置</a></li>
                             <li><a href="{{ url_for('front.logout') }}">注销</a></li>
                         </ul>
@@ -64,6 +67,12 @@
     <div class="main-container">
         {% block content %} {% endblock %}
     </div>
+    <script>
+        $('#search_title').click(function (){
+            var title = $("input[name='search']").val();
+            location.href = "{{ url_for('front.search') }}?title=" + title
+        })
+    </script>
 </body>
 
 </html>
