@@ -6,46 +6,125 @@
 
 {% block head %}
 <script src="{{ url_for('static', filename='front/js/setting.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='front/css/AdminLTE.css') }}">
+    <script src="{{ url_for('static', filename='front/js/common/dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/morris/morris.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/morris/morris.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+
+
     <style>
     body{
       background-color: #f3f3f3;
     }
     .setting-group {
-      width: 800px;
+      width: 100%;
       background-color: #ffffff;
-      margin: 0 auto;
+
       padding: 50px;
     }
     #avatar-img{
-      width: 140px;
-      height: 140px;
+      width: 100px;
+      height: 100px;
+    }
+    .main-container{
+        width: 100%;
+        margin-left: 10px;
     }
   </style>
 {% endblock %}
 
 
 {% block content %}
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-3">
 <div class="setting-group">
-      <h1>{{ user.username }}</h1>
-      <div style="height: 20px;"></div>
-      <form>
+
+    <div class="box box-widget widget-user">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-aqua-active">
+              <h3 class="widget-user-username">{{ user.username }}</h3>
+            </div>
+            <div class="widget-user-image">
+              <img class="img-circle" src="{{ url_for('media.get_avatar',filename=user.avatar) }}" alt="User Avatar" id="avatar-img">
+            </div>
+          </div>
+      <form style="margin-top: 100px;">
+          <div class="form-group">
+              <label >手机号:</label>
+              <input style="width: 90%;display: inline-block" class="form-control" value="18840820254" readonly><i class="fa fa-check" style="color: green;margin-left: 10px;"></i>
+          </div>
         <div class="form-group">
-          <label for="exampleInputEmail1">邮箱：</label>
-          <input type="email" class="form-control" value="{{ user.email }}" readonly>
+          <label for="exampleInputEmail1">邮箱:</label>
+          <input style="width: 90%" type="email" class="form-control" value="{{ user.email }}" readonly>
         </div>
         <div class="form-group">
           <label>头像：</label>
           <div class="input-group">
-            <img src="{{ url_for('media.get_avatar',filename=user.avatar) }}" alt="..." class="img-circle" id="avatar-img">
             <input type="file" id="avatar-input" accept="image/jpeg, image/png">
           </div>
         </div>
         <div class="form-group">
-          <label for="exampleInputPassword1">个性签名：</label>
+          <label for="exampleInputPassword1">个性签名:</label>
           <input type="text" class="form-control" id="signature-input" value="{{ user.signature or "" }}">
         </div>
         <button type="submit" id="submit-btn" class="btn btn-primary">保存</button>
       </form>
     </div>
+        </div>
+        <div class="col-md-7">
+            <div class="box box-solid bg-teal-gradient">
+            <div class="box-header">
+              <i class="fa fa-th"></i>
+
+              <h3 class="box-title">近7日发布帖子数</h3>
+
+            </div>
+            <div class="box-body border-radius-none">
+              <div class="chart" id="line-chart" style="height: 250px;"></div>
+            </div>
+
+          </div>
+            <div>
+                <ul class="timeline">
+            <!-- timeline time label -->
+            <li class="time-label">
+                  <span class="bg-red">
+                    10 Feb. 2014
+                  </span>
+            </li>
+            <!-- /.timeline-label -->
+            <!-- timeline item -->
+            <li>
+              <i class="fa fa-envelope bg-blue"></i>
+
+              <div class="timeline-item">
+                <span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
+
+                <h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
+
+                <div class="timeline-body">
+                  Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
+                  weebly ning heekya handango imeem plugg dopplr jibjab, movity
+                  jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
+                  quora plaxo ideeli hulu weebly balihoo...
+                </div>
+                <div class="timeline-footer">
+                  <a class="btn btn-danger btn-xs">Delete</a>
+                </div>
+              </div>
+            </li>
+            </ul>
+            </div>
+
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
 {% endblock %}
 
+{% block js %}
+    $.widget.bridge('uibutton', $.ui.button);
+{% endblock %}

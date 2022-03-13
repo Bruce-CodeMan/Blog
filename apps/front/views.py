@@ -30,6 +30,7 @@ from flask_avatars import Identicon
 from flask_paginate import get_page_parameter, Pagination
 from sqlalchemy import func
 from flask_jwt_extended import create_access_token
+from werkzeug.security import generate_password_hash
 
 front = Blueprint("front", __name__, url_prefix="/")
 
@@ -100,6 +101,23 @@ def cms():
     return render_template("cms/index.html")
 
 
+# 找回密码
+@front.route("/password", methods=["POST", "GET"])
+def password():
+    if request.method == "GET":
+        return render_template("front/password.html")
+    else:
+        form = forms.ResetPasswordForm(request.form)
+        if form.validate():
+            email = form.email.data
+            password = form.password.data
+            user = auth.UserModel.query.filter_by(email=email).first()
+            user.password = password
+            db.session.commit()
+            return restful.ok()
+        return restful.params_error(form.messages[0])
+
+
 # 登录
 @front.route("/login", methods=["GET", "POST"])
 def login():
@@ -123,7 +141,6 @@ def login():
             if remember_me == 1:
                 # session的默认时间就是浏览器的关闭时间
                 session.permanent = True
-            print(user.to_dict())
             return restful.ok(data={"token": token, "user": user.to_dict()})
         else:
             return restful.params_error(form.messages[0])
@@ -142,16 +159,19 @@ def email_capture():
     email = request.args.get('email')
     if not email:
         return restful.params_error(message="请先传入邮箱")
-
-    # 随机生成六位验证码
-    source = list(string.digits)
-    code = "".join(random.sample(source, 6))
-    print("code:", code)
-    subject = "Bruce"
-    body = "您的注册验证码:%s" % code
-    current_app.celery.send_task("send_mail", (email, subject, body))
-    cache.set(email, code)
-    return restful.ok(message="success")
+    flag = cache.get(email)
+    if flag is None:
+        # 随机生成六位验证码
+        source = list(string.digits)
+        code = "".join(random.sample(source, 6))
+        print("code:", code)
+        subject = "Bruce"
+        body = "您的注册验证码:%s" % code
+        current_app.celery.send_task("send_mail", (email, subject, body))
+        cache.set(email, code)
+        return restful.ok(message="success")
+    else:
+        return restful.params_error(message="已经发送过验证码了，请勿频繁发送")
 
 
 # 注册
@@ -331,9 +351,14 @@ def public_comment():
 @front.get("/search")
 def search():
     title = request.args.get("title")
+    page = request.args.get("page", default=1, type=int)
     try:
         posters = db.session.query(border.PosterModel).filter(border.PosterModel.title.like('%{}%'.format(title))).all()
     except Exception as e:
         print(e)
-
-    return render_template("front/search.html")
+    context = {
+        "count": len(posters),
+        "posters": [poster.to_dict() for poster in posters],
+        "title": title
+    }
+    return render_template("front/search.html", **context)

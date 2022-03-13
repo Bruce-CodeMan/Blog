@@ -5,5 +5,26 @@
 {% endblock %}
 
 {% block content %}
-ssss
+    <h4>找到有关"{{ title }}"的帖子共{{ count }} 条</h4>
+    <div class="post-group">
+    <ul class="post-list-group">
+                  {% for poster in posters %}
+                  <li>
+                    <div class="author-avatar-group">
+                      <img src="{{ url_for('media.get_avatar', filename=poster.author.avatar) }}" alt="">
+                    </div>
+                    <div class="post-info-group">
+                      <p class="post-title">
+                        <a href="{{ url_for('front.poster_detail', poster_id=poster.id) }}">{{ poster.title }}</a>
+                      </p>
+                      <p class="post-info">
+                        <span>作者：{{ poster.author.username }}</span>
+                        <span>发表时间：{{ poster.create_time }}</span>
+                        <span>评论:{{ poster.comments|length }}</span>
+                      </p>
+                    </div>
+                  </li>
+                  {% endfor %}
+              </ul>
+    </div>
 {% endblock %}

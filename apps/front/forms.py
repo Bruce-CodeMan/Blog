@@ -69,6 +69,16 @@ class LoginForm(BaseForm):
     remember_me = IntegerField()
 
 
+# 修改密码
+class ResetPasswordForm(BaseForm):
+    email = StringField(validators=[Email(message="请输入正确格式的邮箱")])
+    email_captcha = StringField(validators=[Length(6, 6, message="请输入正确格式的邮箱验证码")])
+    password = StringField(validators=[Length(6, 20, message="请输入6-20位的密码")])
+    repeat_password = StringField(validators=[EqualTo("password", message="两次密码不一致")])
+    graph_captcha = StringField(validators=[Length(4, 6, message="请输入正确长度的图形验证码")])
+
+
+
 # 自定义头像表单验证
 class UploadAvatarForm(BaseForm):
     image = FileField(validators=[FileAllowed(['jpg', 'jpeg', 'png'], message="图片格式不符合要求，请传递jpg,jpeg,png"), FileSize(max_size=(1024*1024*5), message="图片最大不能超过5M")])
