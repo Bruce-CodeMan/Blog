@@ -94,6 +94,12 @@ def index():
     return render_template("front/index.html", **context)
 
 
+# 后台管理
+@front.get("/cms")
+def cms():
+    return render_template("cms/index.html")
+
+
 # 登录
 @front.route("/login", methods=["GET", "POST"])
 def login():
@@ -319,3 +325,15 @@ def public_comment():
         return restful.ok()
     else:
         return restful.params_error(form.messages[0])
+
+
+# 搜索帖子
+@front.get("/search")
+def search():
+    title = request.args.get("title")
+    try:
+        posters = db.session.query(border.PosterModel).filter(border.PosterModel.title.like('%{}%'.format(title))).all()
+    except Exception as e:
+        print(e)
+
+    return render_template("front/search.html")
