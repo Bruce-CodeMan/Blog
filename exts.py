@@ -10,7 +10,7 @@ from flask_wtf import CSRFProtect
 from flask_avatars import Avatars
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from flask_whooshee import Whooshee
+
 
 db = SQLAlchemy()
 mail = Mail()
@@ -19,4 +19,4 @@ csrf = CSRFProtect()
 avatars = Avatars()
 jwt = JWTManager()
 cors = CORS()
-whoosh = Whooshee()
+

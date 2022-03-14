@@ -7,11 +7,10 @@
 {% block head %}
 <script src="{{ url_for('static', filename='front/js/setting.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='front/css/AdminLTE.css') }}">
-    <script src="{{ url_for('static', filename='front/js/common/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/morris/morris.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/morris/morris.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <script src="{{ url_for('static', filename='lib/raphael/raphael-2.3.0/raphael.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/font-awesome/font-awesome-4.7.0/css/font-awesome.min.css') }}">
 
 
     <style>
@@ -52,12 +51,8 @@
             </div>
           </div>
       <form style="margin-top: 100px;">
-          <div class="form-group">
-              <label >手机号:</label>
-              <input style="width: 90%;display: inline-block" class="form-control" value="18840820254" readonly><i class="fa fa-check" style="color: green;margin-left: 10px;"></i>
-          </div>
         <div class="form-group">
-          <label for="exampleInputEmail1">邮箱:</label>
+          <label>邮箱:</label>
           <input style="width: 90%" type="email" class="form-control" value="{{ user.email }}" readonly>
         </div>
         <div class="form-group">
@@ -67,7 +62,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="exampleInputPassword1">个性签名:</label>
+          <label>个性签名:</label>
           <input type="text" class="form-control" id="signature-input" value="{{ user.signature or "" }}">
         </div>
         <button type="submit" id="submit-btn" class="btn btn-primary">保存</button>
@@ -90,32 +85,30 @@
             <div>
                 <ul class="timeline">
             <!-- timeline time label -->
+                    {% for poster in posters_list %}
             <li class="time-label">
                   <span class="bg-red">
-                    10 Feb. 2014
+                    {{ poster.poster_date }}
                   </span>
             </li>
             <!-- /.timeline-label -->
             <!-- timeline item -->
+                    {% for i in poster.detail %}
             <li>
               <i class="fa fa-envelope bg-blue"></i>
 
               <div class="timeline-item">
-                <span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
+                <span class="time"><i class="fa fa-clock-o"></i> {{ i.create_time }}</span>
 
-                <h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
+                <h3 class="timeline-header">{{ i.border_name }}</h3>
 
-                <div class="timeline-body">
-                  Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
-                  weebly ning heekya handango imeem plugg dopplr jibjab, movity
-                  jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
-                  quora plaxo ideeli hulu weebly balihoo...
-                </div>
-                <div class="timeline-footer">
-                  <a class="btn btn-danger btn-xs">Delete</a>
+                <div class="timeline-body">你发布了一篇名为&lt;&lt;
+                  {{ i.title }}&gt;&gt;的帖子
                 </div>
               </div>
             </li>
+                    {% endfor %}
+                    {% endfor %}
             </ul>
             </div>
 

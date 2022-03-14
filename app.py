@@ -5,7 +5,7 @@
 # 导入配置
 import config
 # 导入flask第三方对象
-from exts import db, mail, cache, csrf, avatars, jwt, cors, whoosh
+from exts import db, mail, cache, csrf, avatars, jwt, cors
 
 import commands
 from flask import Flask
@@ -25,7 +25,6 @@ cache.init_app(app)
 csrf.init_app(app)
 avatars.init_app(app)
 jwt.init_app(app)
-whoosh.init_app(app)
 
 
 cors.init_app(app, resources={r"/cms/*": {"origins": "*"}})

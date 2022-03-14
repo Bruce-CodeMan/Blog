@@ -30,7 +30,9 @@ from flask_avatars import Identicon
 from flask_paginate import get_page_parameter, Pagination
 from sqlalchemy import func
 from flask_jwt_extended import create_access_token
-from werkzeug.security import generate_password_hash
+from datetime import datetime, timedelta
+from itertools import groupby
+from operator import itemgetter
 
 front = Blueprint("front", __name__, url_prefix="/")
 
@@ -223,7 +225,38 @@ def graph_captcha():
 @front.get("/setting")
 @login_required
 def setting():
-    return render_template("front/setting.html")
+    all_posters_list = db.session.query(border.PosterModel).filter(border.PosterModel.author_id == g.user.id).all()
+    poster_list = [{"create_date": obj.to_dict().get("create_time").split(" ")[0],
+                    "create_time": obj.to_dict().get("create_time").split(" ")[1],
+                    "id": obj.to_dict().get("id"),
+                    "border_name": obj.to_dict().get("border").get("name"),
+                    "title": obj.to_dict().get("title")} for obj in all_posters_list]
+    posters_list = []
+    for data, items in groupby(poster_list, key=itemgetter('create_date')):
+        posters_list.append({
+            "poster_date": data,
+            "detail": list(items)[::-1]
+        })
+
+    return render_template("front/setting.html", posters_list=posters_list[::-1])
+
+
+# 查询个人设置中近7日发帖数
+@front.get("/day7/posters/count")
+def day7_posters_count():
+    now = datetime.now()
+    seven_day_ago_now = now - timedelta(days=6, hours=now.hour, minutes=now.minute, seconds=now.second, microseconds=now.microsecond)
+    day7_posters_list = db.session.query(func.date_format(border.PosterModel.create_time, "%Y-%m-%d"), func.count(border.PosterModel.id)).\
+        group_by(func.date_format(border.PosterModel.create_time, "%Y-%m-%d")).filter(border.PosterModel.create_time >= seven_day_ago_now, border.PosterModel.author_id == g.user.id).all()
+    day7_posters_dict = dict(day7_posters_list)
+    for i in range(7):
+        date = seven_day_ago_now + timedelta(days=i)
+        date_str = date.strftime("%Y-%m-%d")
+        if date_str not in day7_posters_dict:
+            day7_posters_dict[date_str] = 0
+    poster_date = sorted(list(day7_posters_dict.keys()))
+    poster_count = [day7_posters_dict[count] for count in poster_date]
+    return restful.ok(data={"poster_date": poster_date, "poster_count": poster_count})
 
 
 # 自定义上传头像
@@ -317,6 +350,7 @@ def poster_image_upload():
 
 # 帖子详情页面
 @front.get("/poster/detail/<int:poster_id>")
+@login_required
 def poster_detail(poster_id):
     try:
         poster_model = border.PosterModel.query.get(poster_id)

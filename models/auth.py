@@ -11,7 +11,8 @@ from sqlalchemy_serializer import SerializerMixin
 
 
 class UserModel(db.Model, SerializerMixin):
-    serialize_only = ("id", "email", "username", "avatar", "signature", "join_time", "is_staff", "is_active")
+    serialize_only = ("id", "email", "username", "avatar", "signature", "join_time",
+                      "is_staff", "is_active", "phone", "phone_active")
     __tablename__ = 'user'
     id = db.Column(db.String(100), primary_key=True, default=shortuuid.uuid)
     email = db.Column(db.String(50), unique=True, nullable=False)
@@ -23,6 +24,7 @@ class UserModel(db.Model, SerializerMixin):
     join_time = db.Column(db.DateTime, default=datetime.now)
     is_staff = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
+    phone_active = db.Column(db.Boolean, default=False)
 
     def __init__(self, *args, **kwargs):
         if 'password' in kwargs:
